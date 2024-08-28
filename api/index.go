@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/adaptor"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/config"
 )
@@ -14,11 +15,6 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// This is needed to set the proper request path in `*fiber.Ctx`
 	r.RequestURI = r.URL.String()
 
-	handler().ServeHTTP(w, r)
-}
-
-// building the fiber application
-func handler() http.HandlerFunc {
 	db := config.NewDatabase()
 	app := config.NewFiber()
 
@@ -27,5 +23,10 @@ func handler() http.HandlerFunc {
 		App: app,
 	})
 
+	handler(app).ServeHTTP(w, r)
+}
+
+// building the fiber application
+func handler(app *fiber.App) http.HandlerFunc {
 	return adaptor.FiberApp(app)
 }
