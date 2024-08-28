@@ -81,11 +81,12 @@ func (as *activityService) Update(req dto.UpdateActivityRequest) error {
 		Location: req.Location,
 	}
 
-	count, err := as.ar.Update(&activity)
+	rowsAffected, err := as.ar.Update(&activity)
 	if err != nil {
 		return err
 	}
-	if count == 0 {
+
+	if rowsAffected == 0 {
 		return errors.ErrorNotFound
 	}
 
@@ -98,11 +99,12 @@ func (as *activityService) Delete(req dto.DeleteActivityRequest) error {
 		return valErr
 	}
 
-	count, err := as.ar.Delete(req.ID)
+	rowsAffected, err := as.ar.Delete(req.ID)
 	if err != nil {
 		return err
 	}
-	if count == 0 {
+	
+	if rowsAffected == 0 {
 		return errors.ErrorNotFound
 	}
 
