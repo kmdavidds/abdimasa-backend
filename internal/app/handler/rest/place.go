@@ -30,7 +30,7 @@ func (ph *placeHandler) Create() fiber.Handler {
 		req := dto.CreatePlaceRequest{}
 		err := c.BodyParser(&req)
 		if err != nil {
-			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]interface{}{
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
 				"error": err,
 			})
 		}
@@ -51,7 +51,7 @@ func (ph *placeHandler) GetAll() fiber.Handler {
 			return err
 		}
 
-		return c.Status(http.StatusOK).JSON(map[string]interface{}{
+		return c.Status(http.StatusOK).JSON(map[string]any{
 			"places": places,
 		})
 	}
@@ -62,7 +62,7 @@ func (ph *placeHandler) Update() fiber.Handler {
 		req := dto.UpdatePlaceRequest{}
 		err := c.BodyParser(&req)
 		if err != nil {
-			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]interface{}{
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
 				"error": err,
 			})
 		}
@@ -81,7 +81,7 @@ func (ph *placeHandler) Delete() fiber.Handler {
 		req := dto.DeletePlaceRequest{}
 		err := c.ParamsParser(&req)
 		if err != nil {
-			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]interface{}{
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
 				"error": err,
 			})
 		}

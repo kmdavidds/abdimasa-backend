@@ -30,7 +30,7 @@ func (bh *businessHandler) Create() fiber.Handler {
 		req := dto.CreateBusinessRequest{}
 		err := c.BodyParser(&req)
 		if err != nil {
-			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]interface{}{
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
 				"error": err,
 			})
 		}
@@ -51,7 +51,7 @@ func (bh *businessHandler) GetAll() fiber.Handler {
 			return err
 		}
 
-		return c.Status(http.StatusOK).JSON(map[string]interface{}{
+		return c.Status(http.StatusOK).JSON(map[string]any{
 			"businesses": businesses,
 		})
 	}
@@ -62,7 +62,7 @@ func (bh *businessHandler) Update() fiber.Handler {
 		req := dto.UpdateBusinessRequest{}
 		err := c.BodyParser(&req)
 		if err != nil {
-			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]interface{}{
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
 				"error": err,
 			})
 		}
@@ -81,7 +81,7 @@ func (bh *businessHandler) Delete() fiber.Handler {
 		req := dto.DeleteBusinessRequest{}
 		err := c.ParamsParser(&req)
 		if err != nil {
-			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]interface{}{
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
 				"error": err,
 			})
 		}
