@@ -12,6 +12,7 @@ type Config struct {
 	BusinessHandler   rest.BusinessHandler
 	RemarkHandler     rest.RemarkHandler
 	SuggestionHandler rest.SuggestionHandler
+	NewsHandler       rest.NewsHandler
 }
 
 func (c *Config) Register() {
@@ -24,6 +25,7 @@ func (c *Config) Register() {
 	c.businessRoutes(v1)
 	c.remarkRoutes(v1)
 	c.suggestionRoutes(v1)
+	c.newsRoutes(v1)
 }
 
 func (c *Config) activityRoutes(r fiber.Router) {
@@ -66,4 +68,13 @@ func (c *Config) suggestionRoutes(r fiber.Router) {
 	suggestions.Post("", c.SuggestionHandler.Create())
 	suggestions.Get("", c.SuggestionHandler.GetAll())
 	suggestions.Delete("/:id", c.SuggestionHandler.Delete())
+}
+
+func (c *Config) newsRoutes(r fiber.Router) {
+	news := r.Group("/news")
+
+	news.Post("", c.NewsHandler.Create())
+	news.Get("", c.NewsHandler.GetAll())
+	news.Put("", c.NewsHandler.Update())
+	news.Delete("/:id", c.NewsHandler.Delete())
 }
