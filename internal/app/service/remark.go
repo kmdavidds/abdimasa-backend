@@ -40,6 +40,7 @@ func (rs *remarkService) Create(req dto.CreateRemarkRequest) error {
 		ID:         idV7,
 		Name:       req.Name,
 		Occupation: req.Occupation,
+		Description: req.Description,
 		Gender:     req.Gender,
 	}
 
