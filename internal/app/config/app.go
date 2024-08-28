@@ -22,22 +22,30 @@ func StartApp(config *AppConfig) {
 	activityRepo := repository.NewActivityRepository(config.DB)
 	placeRepo := repository.NewPlaceRepository(config.DB)
 	businessRepo := repository.NewBusinessRepository(config.DB)
+	remarkRepo := repository.NewRemarkRepository(config.DB)
+	suggestionRepo := repository.NewSuggestionRepository(config.DB)
 
 	// services
 	activityService := service.NewActivityService(activityRepo, val)
 	placeService := service.NewPlaceService(placeRepo, val)
 	businessService := service.NewBusinessService(businessRepo, val)
+	remarkService := service.NewRemarkService(remarkRepo, val)
+	suggestionService := service.NewSuggestionService(suggestionRepo, val)
 
 	// handlers
 	activityHandler := rest.NewActivityHandler(activityService)
 	placeHandler := rest.NewPlaceHandler(placeService)
 	businessHandler := rest.NewBusinessHandler(businessService)
+	remarkHandler := rest.NewRemarkHandler(remarkService)
+	suggestionHandler := rest.NewSuggestionHandler(suggestionService)
 
 	routes := route.Config{
 		App: config.App,
 		ActivityHandler: activityHandler,
 		PlaceHandler: placeHandler,
 		BusinessHandler: businessHandler,
+		RemarkHandler: remarkHandler,
+		SuggestionHandler: suggestionHandler,
 	}
 
 	routes.Register()

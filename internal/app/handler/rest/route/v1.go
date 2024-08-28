@@ -6,11 +6,12 @@ import (
 )
 
 type Config struct {
-	App             *fiber.App
-	ActivityHandler rest.ActivityHandler
-	PlaceHandler    rest.PlaceHandler
-	BusinessHandler rest.BusinessHandler
-	RemarkHandler   rest.RemarkHandler
+	App               *fiber.App
+	ActivityHandler   rest.ActivityHandler
+	PlaceHandler      rest.PlaceHandler
+	BusinessHandler   rest.BusinessHandler
+	RemarkHandler     rest.RemarkHandler
+	SuggestionHandler rest.SuggestionHandler
 }
 
 func (c *Config) Register() {
@@ -22,6 +23,7 @@ func (c *Config) Register() {
 	c.placeRoutes(v1)
 	c.businessRoutes(v1)
 	c.remarkRoutes(v1)
+	c.suggestionRoutes(v1)
 }
 
 func (c *Config) activityRoutes(r fiber.Router) {
@@ -56,4 +58,12 @@ func (c *Config) remarkRoutes(r fiber.Router) {
 
 	remarks.Post("", c.RemarkHandler.Create())
 	remarks.Get("", c.RemarkHandler.GetAll())
+}
+
+func (c *Config) suggestionRoutes(r fiber.Router) {
+	suggestions := r.Group("/suggestions")
+
+	suggestions.Post("", c.SuggestionHandler.Create())
+	suggestions.Get("", c.SuggestionHandler.GetAll())
+	suggestions.Delete("/:id", c.SuggestionHandler.Delete())
 }
