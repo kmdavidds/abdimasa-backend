@@ -5,6 +5,9 @@ import (
 	"github.com/kmdavidds/abdimasa-backend/internal/app/config"
 )
 
+// This is the same as cmd/app/main.go
+// This avoids the error of vercel importing a package named "config"
+
 func NewVercelApp() *fiber.App {
 	db := config.NewDatabase()
 	app := config.NewFiber()
