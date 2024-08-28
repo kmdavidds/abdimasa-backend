@@ -24,6 +24,7 @@ func MigrateTables(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&entity.Activity{},
 		&entity.Place{},
+		&entity.Business{},
 	)
 	if err != nil {
 		return err
