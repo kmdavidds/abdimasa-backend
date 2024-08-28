@@ -23,6 +23,7 @@ func NewDatabase() *gorm.DB {
 func MigrateTables(db *gorm.DB) error {
 	err := db.AutoMigrate(
 		&entity.Activity{},
+		&entity.Place{},
 	)
 	if err != nil {
 		return err
