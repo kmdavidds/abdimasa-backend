@@ -17,6 +17,10 @@ type CreatePlaceRequest struct {
 	Rating       int    `json:"rating" validate:"min=0,max=50"`
 }
 
+type GetPlaceByIDRequest struct {
+	ID uuid.UUID `param:"id" validate:"required"`
+}
+
 type UpdatePlaceRequest struct {
 	ID           uuid.UUID `json:"id" validate:"required"`
 	Name         string    `json:"name" validate:"min=1,max=255"`

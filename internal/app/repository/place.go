@@ -9,6 +9,7 @@ import (
 type PlaceRepository interface {
 	Create(place *entity.Place) (int64, error)
 	GetAll(places *[]entity.Place) (int64, error)
+	GetByID(place *entity.Place) (int64, error)
 	Update(place *entity.Place) (int64, error)
 	Delete(id uuid.UUID) (int64, error)
 }
@@ -28,6 +29,11 @@ func (pr *placeRepository) Create(place *entity.Place) (int64, error) {
 
 func (pr *placeRepository) GetAll(places *[]entity.Place) (int64, error) {
 	result := pr.db.Debug().Find(places)
+	return result.RowsAffected, result.Error
+}
+
+func (pr *placeRepository) GetByID(place *entity.Place) (int64, error) {
+	result := pr.db.Debug().First(place)
 	return result.RowsAffected, result.Error
 }
 

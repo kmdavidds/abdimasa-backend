@@ -16,6 +16,10 @@ type CreateBusinessRequest struct {
 	Rating      int    `json:"rating" validate:"min=0,max=50"`
 }
 
+type GetBusinessByIDRequest struct {
+	ID uuid.UUID `param:"id" validate:"required"`
+}
+
 type UpdateBusinessRequest struct {
 	ID          uuid.UUID `json:"id" validate:"required"`
 	Name        string    `json:"name" validate:"min=1,max=255"`

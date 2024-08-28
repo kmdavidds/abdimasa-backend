@@ -12,6 +12,7 @@ import (
 type BusinessService interface {
 	Create(req dto.CreateBusinessRequest) error
 	GetAll() ([]entity.Business, error)
+	GetByID(req dto.GetBusinessByIDRequest) (entity.Business, error)
 	Update(req dto.UpdateBusinessRequest) error
 	Delete(req dto.DeleteBusinessRequest) error
 }
@@ -70,6 +71,26 @@ func (bs *businessService) GetAll() ([]entity.Business, error) {
 	}
 
 	return businesses, nil
+}
+
+func (bs *businessService) GetByID(req dto.GetBusinessByIDRequest) (entity.Business, error) {
+	valErr := bs.val.Validate(req)
+	if valErr != nil {
+		return entity.Business{}, valErr
+	}
+
+	business := entity.Business{ID: req.ID}
+
+	rowsAffected, err := bs.br.GetByID(&business)
+	if err != nil {
+		return entity.Business{}, err
+	}
+
+	if rowsAffected == 0 {
+		return entity.Business{}, errors.ErrorNotFound
+	}
+
+	return business, nil
 }
 
 func (bs *businessService) Update(req dto.UpdateBusinessRequest) error {

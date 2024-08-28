@@ -10,6 +10,7 @@ import (
 type BusinessRepository interface {
 	Create(business *entity.Business) (int64, error)
 	GetAll(businesses *[]entity.Business) (int64, error)
+	GetByID(business *entity.Business) (int64, error)
 	Update(business *entity.Business) (int64, error)
 	Delete(id uuid.UUID) (int64, error)
 }
@@ -29,6 +30,11 @@ func (br *businessRepository) Create(business *entity.Business) (int64, error) {
 
 func (br *businessRepository) GetAll(businesses *[]entity.Business) (int64, error) {
 	result := br.db.Debug().Find(businesses)
+	return result.RowsAffected, result.Error
+}
+
+func (br *businessRepository) GetByID(business *entity.Business) (int64, error) {
+	result := br.db.Debug().First(business)
 	return result.RowsAffected, result.Error
 }
 

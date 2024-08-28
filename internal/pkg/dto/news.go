@@ -8,6 +8,10 @@ type CreateNewsRequest struct {
 	ImageURL    string `json:"imageURL" validate:"url"`
 }
 
+type GetNewsByIDRequest struct {
+	ID uuid.UUID `param:"id" validate:"required"`
+}
+
 type UpdateNewsRequest struct {
 	ID          uuid.UUID `json:"id" validate:"required"`
 	Title       string    `json:"title" validate:"min=1,max=255"`

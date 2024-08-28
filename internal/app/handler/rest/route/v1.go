@@ -42,6 +42,7 @@ func (c *Config) placeRoutes(r fiber.Router) {
 
 	places.Post("", c.PlaceHandler.Create())
 	places.Get("", c.PlaceHandler.GetAll())
+	places.Get("/:id", c.PlaceHandler.GetByID())
 	places.Put("", c.PlaceHandler.Update())
 	places.Delete("/:id", c.PlaceHandler.Delete())
 }
@@ -51,6 +52,7 @@ func (c *Config) businessRoutes(r fiber.Router) {
 
 	businesses.Post("", c.BusinessHandler.Create())
 	businesses.Get("", c.BusinessHandler.GetAll())
+	businesses.Get("/:id", c.BusinessHandler.GetByID())
 	businesses.Put("", c.BusinessHandler.Update())
 	businesses.Delete("/:id", c.BusinessHandler.Delete())
 }
@@ -75,6 +77,7 @@ func (c *Config) newsRoutes(r fiber.Router) {
 
 	news.Post("", c.NewsHandler.Create())
 	news.Get("", c.NewsHandler.GetAll())
+	news.Get("/:id", c.NewsHandler.GetByID())
 	news.Put("", c.NewsHandler.Update())
 	news.Delete("/:id", c.NewsHandler.Delete())
 }

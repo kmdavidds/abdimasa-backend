@@ -11,6 +11,7 @@ import (
 type PlaceHandler interface {
 	Create() fiber.Handler
 	GetAll() fiber.Handler
+	GetByID() fiber.Handler
 	Update() fiber.Handler
 	Delete() fiber.Handler
 }
@@ -53,6 +54,27 @@ func (ph *placeHandler) GetAll() fiber.Handler {
 
 		return c.Status(http.StatusOK).JSON(map[string]any{
 			"places": places,
+		})
+	}
+}
+
+func (ph *placeHandler) GetByID() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		req := dto.GetPlaceByIDRequest{}
+		err := c.ParamsParser(&req)
+		if err != nil {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": err,
+			})
+		}
+
+		place, err := ph.ps.GetByID(req)
+		if err != nil {
+			return err
+		}
+
+		return c.Status(http.StatusOK).JSON(map[string]any{
+			"place": place,
 		})
 	}
 }

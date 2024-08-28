@@ -11,6 +11,7 @@ import (
 type NewsHandler interface {
 	Create() fiber.Handler
 	GetAll() fiber.Handler
+	GetByID() fiber.Handler
 	Update() fiber.Handler
 	Delete() fiber.Handler
 }
@@ -92,5 +93,26 @@ func (nh *newsHandler) Delete() fiber.Handler {
 		}
 
 		return c.SendStatus(http.StatusNoContent)
+	}
+}
+
+func (nh *newsHandler) GetByID() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		req := dto.GetNewsByIDRequest{}
+		err := c.ParamsParser(&req)
+		if err != nil {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": err,
+			})
+		}
+
+		news, err := nh.ns.GetByID(req)
+		if err != nil {
+			return err
+		}
+
+		return c.Status(http.StatusOK).JSON(map[string]any{
+			"news": news,
+		})
 	}
 }

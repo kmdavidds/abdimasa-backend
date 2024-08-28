@@ -5,12 +5,14 @@ import (
 	"github.com/kmdavidds/abdimasa-backend/internal/app/repository"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/dto"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/entity"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/errors"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/validator"
 )
 
 type NewsService interface {
 	Create(req dto.CreateNewsRequest) error
 	GetAll() ([]entity.News, error)
+	GetByID(req dto.GetNewsByIDRequest) (entity.News, error)
 	Update(req dto.UpdateNewsRequest) error
 	Delete(req dto.DeleteNewsRequest) error
 }
@@ -58,6 +60,26 @@ func (ns *newsService) GetAll() ([]entity.News, error) {
 	_, err := ns.nr.GetAll(&news)
 	if err != nil {
 		return nil, err
+	}
+
+	return news, nil
+}
+
+func (ns *newsService) GetByID(req dto.GetNewsByIDRequest) (entity.News, error) {
+	valErr := ns.val.Validate(req)
+	if valErr != nil {
+		return entity.News{}, valErr
+	}
+
+	news := entity.News{ID: req.ID}
+
+	rowsAffected, err := ns.nr.GetByID(&news)
+	if err != nil {
+		return entity.News{}, err
+	}
+
+	if rowsAffected == 0 {
+		return entity.News{}, errors.ErrorNotFound
 	}
 
 	return news, nil

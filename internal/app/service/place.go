@@ -12,6 +12,7 @@ import (
 type PlaceService interface {
 	Create(req dto.CreatePlaceRequest) error
 	GetAll() ([]entity.Place, error)
+	GetByID(req dto.GetPlaceByIDRequest) (entity.Place, error)
 	Update(req dto.UpdatePlaceRequest) error
 	Delete(req dto.DeletePlaceRequest) error
 }
@@ -73,6 +74,26 @@ func (ps *placeService) GetAll() ([]entity.Place, error) {
 	return places, nil
 }
 
+func (ps *placeService) GetByID(req dto.GetPlaceByIDRequest) (entity.Place, error) {
+	valErr := ps.val.Validate(req)
+	if valErr != nil {
+		return entity.Place{}, valErr
+	}
+
+	place := entity.Place{ID: req.ID}
+
+	rowsAffected, err := ps.pr.GetByID(&place)
+	if err != nil {
+		return entity.Place{}, err
+	}
+
+	if rowsAffected == 0 {
+		return entity.Place{}, errors.ErrorNotFound
+	}
+
+	return place, nil
+}
+
 func (ps *placeService) Update(req dto.UpdatePlaceRequest) error {
 	valErr := ps.val.Validate(req)
 	if valErr != nil {
@@ -99,6 +120,7 @@ func (ps *placeService) Update(req dto.UpdatePlaceRequest) error {
 	if err != nil {
 		return err
 	}
+
 	if rowsAffected == 0 {
 		return errors.ErrorNotFound
 	}
@@ -116,6 +138,7 @@ func (ps *placeService) Delete(req dto.DeletePlaceRequest) error {
 	if err != nil {
 		return err
 	}
+
 	if rowsAffected == 0 {
 		return errors.ErrorNotFound
 	}
