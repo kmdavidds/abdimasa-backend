@@ -2,6 +2,7 @@ package vercel
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/config"
 )
 
@@ -16,6 +17,8 @@ func NewVercelApp() *fiber.App {
 		DB:  db,
 		App: app,
 	})
+	
+	app.Use(cors.New())
 
 	return app
 }
