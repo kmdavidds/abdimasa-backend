@@ -25,6 +25,7 @@ func StartApp(config *AppConfig) {
 	remarkRepo := repository.NewRemarkRepository(config.DB)
 	suggestionRepo := repository.NewSuggestionRepository(config.DB)
 	newsRepo := repository.NewNewsRepository(config.DB)
+	detailRepo := repository.NewDetailRepository(config.DB)
 
 	// services
 	activityService := service.NewActivityService(activityRepo, val)
@@ -33,6 +34,7 @@ func StartApp(config *AppConfig) {
 	remarkService := service.NewRemarkService(remarkRepo, val)
 	suggestionService := service.NewSuggestionService(suggestionRepo, val)
 	newsService := service.NewNewsService(newsRepo, val)
+	detailService := service.NewDetailService(detailRepo, val)
 
 	// handlers
 	activityHandler := rest.NewActivityHandler(activityService)
@@ -41,6 +43,7 @@ func StartApp(config *AppConfig) {
 	remarkHandler := rest.NewRemarkHandler(remarkService)
 	suggestionHandler := rest.NewSuggestionHandler(suggestionService)
 	newsHandler := rest.NewNewsHandler(newsService)
+	detailHandler := rest.NewDetailHandler(detailService)
 
 	routes := route.Config{
 		App: config.App,
@@ -50,6 +53,7 @@ func StartApp(config *AppConfig) {
 		RemarkHandler: remarkHandler,
 		SuggestionHandler: suggestionHandler,
 		NewsHandler: newsHandler,
+		DetailHandler: detailHandler,
 	}
 
 	routes.Register()

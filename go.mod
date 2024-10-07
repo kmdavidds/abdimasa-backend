@@ -13,8 +13,6 @@ require (
 require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
-	github.com/philhofer/fwd v1.1.2 // indirect
-	github.com/tinylib/msgp v1.1.8 // indirect
 	golang.org/x/net v0.21.0 // indirect
 )
 
