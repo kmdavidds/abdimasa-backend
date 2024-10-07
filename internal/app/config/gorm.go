@@ -28,6 +28,7 @@ func MigrateTables(db *gorm.DB) error {
 		&entity.Remark{},
 		&entity.Suggestion{},
 		&entity.News{},
+		&entity.Detail{},
 	)
 	if err != nil {
 		return err
