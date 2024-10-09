@@ -33,7 +33,7 @@ func (pr *placeRepository) GetAll(places *[]entity.Place) (int64, error) {
 }
 
 func (pr *placeRepository) GetByID(place *entity.Place) (int64, error) {
-	result := pr.db.Debug().First(place)
+	result := pr.db.Debug().Preload("Reviews").First(place)
 	return result.RowsAffected, result.Error
 }
 
