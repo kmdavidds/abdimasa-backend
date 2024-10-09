@@ -20,5 +20,5 @@ type Business struct {
 	MapURL      string    `gorm:"type:text" json:"mapURL"`
 	Rating      int       `gorm:"type:int8" json:"rating"`
 	CreatedAt   time.Time `gorm:"type:timestamptz;not null" json:"createdAt"`
-	// Reviews     []Review  `gorm:"foreignKey:BusinessID"`
+	Reviews     []Review  `json:"reviews"`
 }
