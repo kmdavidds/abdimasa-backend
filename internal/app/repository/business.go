@@ -34,7 +34,7 @@ func (br *businessRepository) GetAll(businesses *[]entity.Business) (int64, erro
 }
 
 func (br *businessRepository) GetByID(business *entity.Business) (int64, error) {
-	result := br.db.Debug().First(business)
+	result := br.db.Debug().Preload("Reviews").First(business)
 	return result.RowsAffected, result.Error
 }
 
