@@ -12,6 +12,7 @@ require (
 
 require (
 	github.com/gabriel-vasile/mimetype v1.4.3 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	golang.org/x/net v0.21.0 // indirect
 )
