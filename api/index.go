@@ -8,7 +8,6 @@ import (
 )
 
 // This is the boilerplate for vercel serverless functions
-// robin
 
 // Handler is the main entry point of the application. Think of it like the main() method
 func Handler(w http.ResponseWriter, r *http.Request) {

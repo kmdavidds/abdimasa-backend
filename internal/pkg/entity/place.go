@@ -21,5 +21,5 @@ type Place struct {
 	MapURL       string    `gorm:"type:text" json:"mapURL"`
 	Rating       int       `gorm:"type:int8;default:0" json:"rating"`
 	CreatedAt    time.Time `gorm:"type:timestamptz;not null" json:"createdAt"`
-	// Reviews      []Review  `gorm:"foreignKey:PlaceID"`
+	Reviews      []Review  `json:"reviews"`
 }

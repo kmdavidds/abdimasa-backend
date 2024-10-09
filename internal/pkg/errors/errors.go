@@ -9,8 +9,11 @@ import (
 )
 
 var (
-	ErrorNotFound = errors.New("record not found")
-) 
+	ErrorNotFound           = errors.New("record not found")
+	ErrorInvalidToken       = errors.New("invalid jwt token")
+	ErrorExpiredToken       = errors.New("expired jwt token")
+	ErrorInvalidCredentials = errors.New("invalid credentials")
+)
 
 func Handler(c *fiber.Ctx, err error) error {
 	var e *validator.ValidationErrors
@@ -21,7 +24,10 @@ func Handler(c *fiber.Ctx, err error) error {
 	}
 
 	errorMappings := map[error]int{
-		ErrorNotFound: http.StatusNotFound,
+		ErrorNotFound:           http.StatusNotFound,
+		ErrorInvalidToken:       http.StatusUnauthorized,
+		ErrorExpiredToken:       http.StatusUnauthorized,
+		ErrorInvalidCredentials: http.StatusUnauthorized,
 	}
 
 	statusCode, exists := errorMappings[err]

@@ -1,11 +1,16 @@
 package config
 
 import (
+	"os"
+	"time"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/handler/rest"
+	"github.com/kmdavidds/abdimasa-backend/internal/app/handler/rest/middleware"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/handler/rest/route"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/repository"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/service"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/jwt"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/validator"
 	"gorm.io/gorm"
 )
@@ -17,6 +22,7 @@ type AppConfig struct {
 
 func StartApp(config *AppConfig) {
 	val := validator.NewValidator()
+	jwt := jwt.New([]byte(os.Getenv("JWT_SECRET")), 24*time.Hour)
 
 	// repositories
 	activityRepo := repository.NewActivityRepository(config.DB)
@@ -35,6 +41,7 @@ func StartApp(config *AppConfig) {
 	suggestionService := service.NewSuggestionService(suggestionRepo, val)
 	newsService := service.NewNewsService(newsRepo, val)
 	detailService := service.NewDetailService(detailRepo, val)
+	authService := service.NewAuthService(val, jwt)
 
 	// handlers
 	activityHandler := rest.NewActivityHandler(activityService)
@@ -44,6 +51,10 @@ func StartApp(config *AppConfig) {
 	suggestionHandler := rest.NewSuggestionHandler(suggestionService)
 	newsHandler := rest.NewNewsHandler(newsService)
 	detailHandler := rest.NewDetailHandler(detailService)
+	authHandler := rest.NewAuthHandler(authService)
+
+	// middlewares
+	authMiddleware := middleware.NewAuth(jwt)
 
 	routes := route.Config{
 		App: config.App,
@@ -54,6 +65,8 @@ func StartApp(config *AppConfig) {
 		SuggestionHandler: suggestionHandler,
 		NewsHandler: newsHandler,
 		DetailHandler: detailHandler,
+		AuthHandler: authHandler,
+		AuthMiddleware: authMiddleware,
 	}
 
 	routes.Register()
