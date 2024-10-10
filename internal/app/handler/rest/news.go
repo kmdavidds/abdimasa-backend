@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/service"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/dto"
+	"github.com/valyala/fasthttp"
 )
 
 type NewsHandler interface {
@@ -35,6 +36,15 @@ func (nh *newsHandler) Create() fiber.Handler {
 				"error": err,
 			})
 		}
+
+		imageFile1, err := c.FormFile("image1")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image1",
+			})
+		}
+		
+		req.Image1 = imageFile1
 
 		err = nh.ns.Create(req)
 		if err != nil {
@@ -67,6 +77,15 @@ func (nh *newsHandler) Update() fiber.Handler {
 				"error": err,
 			})
 		}
+
+		imageFile1, err := c.FormFile("image1")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image1",
+			})
+		}
+		
+		req.Image1 = imageFile1
 
 		err = nh.ns.Update(req)
 		if err != nil {

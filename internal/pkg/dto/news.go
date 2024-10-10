@@ -1,11 +1,15 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"mime/multipart"
+
+	"github.com/google/uuid"
+)
 
 type CreateNewsRequest struct {
-	Title       string `json:"title" validate:"required,min=1,max=255"`
-	Description string `json:"description" validate:"required"`
-	ImageURL    string `json:"imageURL" validate:"url"`
+	Title       string                `form:"title" validate:"required,min=1,max=255"`
+	Description string                `form:"description" validate:"required"`
+	Image1      *multipart.FileHeader `form:"image1"`
 }
 
 type GetNewsByIDRequest struct {
@@ -13,10 +17,10 @@ type GetNewsByIDRequest struct {
 }
 
 type UpdateNewsRequest struct {
-	ID          uuid.UUID `json:"id" validate:"required"`
-	Title       string    `json:"title" validate:"min=1,max=255"`
-	Description string    `json:"description" validate:"min=1"`
-	ImageURL    string    `json:"imageURL" validate:"url"`
+	ID          uuid.UUID             `form:"id" validate:"required"`
+	Title       string                `form:"title" validate:"max=255"`
+	Description string                `form:"description"`
+	Image1      *multipart.FileHeader `form:"image1"`
 }
 
 type DeleteNewsRequest struct {
