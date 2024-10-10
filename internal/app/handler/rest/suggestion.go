@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/service"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/dto"
+	"github.com/valyala/fasthttp"
 )
 
 type SuggestionHandler interface {
@@ -33,6 +34,15 @@ func (sh *suggestionHandler) Create() fiber.Handler {
 				"error": err,
 			})
 		}
+
+		attachmentFile1, err := c.FormFile("attachment1")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get attachment1",
+			})
+		}
+		
+		req.Attachment1 = attachmentFile1
 
 		err = sh.ss.Create(req)
 		if err != nil {

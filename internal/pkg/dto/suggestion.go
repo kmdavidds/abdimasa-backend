@@ -1,11 +1,15 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"mime/multipart"
+
+	"github.com/google/uuid"
+)
 
 type CreateSuggestionRequest struct {
-	Name          string `json:"name" validate:"required,min=1,max=255"`
-	Description   string `json:"description" validate:"required,min=1"`
-	AttachmentURL string `json:"attachmentURL" validate:"min=1"`
+	Name          string                `form:"name" validate:"required,min=1,max=255"`
+	Description   string                `form:"description" validate:"required,min=1"`
+	Attachment1   *multipart.FileHeader `form:"attachment1"`
 }
 
 type DeleteSuggestionRequest struct {
