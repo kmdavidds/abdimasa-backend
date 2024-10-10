@@ -1,11 +1,15 @@
 package service
 
 import (
+	"slices"
+
 	"github.com/google/uuid"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/repository"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/dto"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/entity"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/errors"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/fileops"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/supabase"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/validator"
 )
 
@@ -16,15 +20,17 @@ type SuggestionService interface {
 }
 
 type suggestionService struct {
-	sr  repository.SuggestionRepository
-	val validator.Validator
+	sr       repository.SuggestionRepository
+	val      validator.Validator
+	supabase supabase.Supabase
 }
 
 func NewSuggestionService(
 	sr repository.SuggestionRepository,
 	val validator.Validator,
+	supabase supabase.Supabase,
 ) SuggestionService {
-	return &suggestionService{sr, val}
+	return &suggestionService{sr, val, supabase}
 }
 
 func (ss *suggestionService) Create(req dto.CreateSuggestionRequest) error {
@@ -38,11 +44,35 @@ func (ss *suggestionService) Create(req dto.CreateSuggestionRequest) error {
 		return err
 	}
 
+	var attachmentURL = ""
+
+	if req.Attachment1 != nil {
+		if req.Attachment1.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Attachment1)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.DocumentContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		attachmentURL, err = ss.supabase.Upload(req.Attachment1)
+		if err != nil {
+			return err
+		}
+	}	
+
 	suggestion := entity.Suggestion{
 		ID:            idV7,
 		Name:          req.Name,
 		Description:   req.Description,
-		AttachmentURL: req.AttachmentURL,
+		AttachmentURL: attachmentURL,
 	}
 
 	_, err = ss.sr.Create(&suggestion)

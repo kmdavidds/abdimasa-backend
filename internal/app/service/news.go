@@ -1,11 +1,15 @@
 package service
 
 import (
+	"slices"
+
 	"github.com/google/uuid"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/repository"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/dto"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/entity"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/errors"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/fileops"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/supabase"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/validator"
 )
 
@@ -18,15 +22,17 @@ type NewsService interface {
 }
 
 type newsService struct {
-	nr repository.NewsRepository
-	val validator.Validator
+	nr       repository.NewsRepository
+	val      validator.Validator
+	supabase supabase.Supabase
 }
 
 func NewNewsService(
 	nr repository.NewsRepository,
 	val validator.Validator,
+	supabase supabase.Supabase,
 ) NewsService {
-	return &newsService{nr, val}
+	return &newsService{nr, val, supabase}
 }
 
 func (ns *newsService) Create(req dto.CreateNewsRequest) error {
@@ -34,6 +40,30 @@ func (ns *newsService) Create(req dto.CreateNewsRequest) error {
 	if valErr != nil {
 		return valErr
 	}
+
+	var imageURL = ""
+
+	if req.Image1 != nil {
+		if req.Image1.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image1)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		imageURL, err = ns.supabase.Upload(req.Image1)
+		if err != nil {
+			return err
+		}
+	}	
 
 	idV7, err := uuid.NewV7()
 	if err != nil {
@@ -44,7 +74,7 @@ func (ns *newsService) Create(req dto.CreateNewsRequest) error {
 		ID:          idV7,
 		Title:       req.Title,
 		Description: req.Description,
-		ImageURL:    req.ImageURL,
+		ImageURL:    imageURL,
 	}
 
 	_, err = ns.nr.Create(&news)
@@ -91,11 +121,46 @@ func (ns *newsService) Update(req dto.UpdateNewsRequest) error {
 		return valErr
 	}
 
+	var imageURL = ""
+
+	if req.Image1 != nil {
+		if req.Image1.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image1)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		news := entity.News{ID: req.ID}
+		rowsAffected, err := ns.nr.GetByID(&news)
+		if err != nil {
+			return err
+		}
+		if rowsAffected == 0 {
+			return errors.ErrorNotFound
+		}
+
+		ns.supabase.Delete(news.ImageURL)
+
+		imageURL, err = ns.supabase.Upload(req.Image1)
+		if err != nil {
+			return err
+		}
+	}	
+
 	news := entity.News{
 		ID:          req.ID,
 		Title:       req.Title,
 		Description: req.Description,
-		ImageURL:    req.ImageURL,
+		ImageURL:    imageURL,
 	}
 
 	_, err := ns.nr.Update(&news)

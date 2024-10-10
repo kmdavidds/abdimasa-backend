@@ -1,11 +1,15 @@
 package service
 
 import (
+	"slices"
+
 	"github.com/google/uuid"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/repository"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/dto"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/entity"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/errors"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/fileops"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/supabase"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/validator"
 )
 
@@ -18,15 +22,17 @@ type BusinessService interface {
 }
 
 type businessService struct {
-	br  repository.BusinessRepository
-	val validator.Validator
+	br       repository.BusinessRepository
+	val      validator.Validator
+	supabase supabase.Supabase
 }
 
 func NewBusinessService(
 	br repository.BusinessRepository,
 	val validator.Validator,
+	supabase supabase.Supabase,
 ) BusinessService {
-	return &businessService{br, val}
+	return &businessService{br, val, supabase}
 }
 
 func (bs *businessService) Create(req dto.CreateBusinessRequest) error {
@@ -35,24 +41,92 @@ func (bs *businessService) Create(req dto.CreateBusinessRequest) error {
 		return valErr
 	}
 
+	var imageURL1 = ""
+	var imageURL2 = ""
+	var imageURL3 = ""
+
+	if req.Image1 != nil {
+		if req.Image1.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image1)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		imageURL1, err = bs.supabase.Upload(req.Image1)
+		if err != nil {
+			return err
+		}
+	}
+	if req.Image2 != nil {
+		if req.Image2.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image2)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		imageURL2, err = bs.supabase.Upload(req.Image2)
+		if err != nil {
+			return err
+		}
+	}
+	if req.Image3 != nil {
+		if req.Image3.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image3)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		imageURL3, err = bs.supabase.Upload(req.Image3)
+		if err != nil {
+			return err
+		}
+	}
+
 	idV7, err := uuid.NewV7()
 	if err != nil {
 		return err
 	}
 
 	business := entity.Business{
-		ID:       idV7,
-		Name:     req.Name,
-		Location: req.Location,
+		ID:          idV7,
+		Name:        req.Name,
+		Location:    req.Location,
 		Description: req.Description,
-		Address:  req.Address,
-		PriceRange: req.PriceRange,
-		ImageURL1: req.ImageURL1,
-		ImageURL2: req.ImageURL2,
-		ImageURL3: req.ImageURL3,
-		Contact: req.Contact,
-		MapURL: req.MapURL,
-		Rating: req.Rating,
+		Address:     req.Address,
+		PriceRange:  req.PriceRange,
+		ImageURL1:   imageURL1,
+		ImageURL2:   imageURL2,
+		ImageURL3:   imageURL3,
+		Contact:     req.Contact,
+		MapURL:      req.MapURL,
+		Rating:      req.Rating,
 	}
 
 	_, err = bs.br.Create(&business)
@@ -99,22 +173,105 @@ func (bs *businessService) Update(req dto.UpdateBusinessRequest) error {
 		return valErr
 	}
 
-	business := entity.Business{
-		ID:       req.ID,
-		Name:     req.Name,
-		Location: req.Location,
-		Description: req.Description,
-		Address:  req.Address,
-		PriceRange: req.PriceRange,
-		ImageURL1: req.ImageURL1,
-		ImageURL2: req.ImageURL2,
-		ImageURL3: req.ImageURL3,
-		Contact: req.Contact,
-		MapURL: req.MapURL,
-		Rating: req.Rating,
+	business := entity.Business{ID: req.ID}
+	rowsAffected, err := bs.br.GetByID(&business)
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.ErrorNotFound
 	}
 
-	rowsAffected, err := bs.br.Update(&business)
+	var imageURL1 = ""
+	var imageURL2 = ""
+	var imageURL3 = ""
+
+	if req.Image1 != nil {
+		if req.Image1.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image1)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+		
+		bs.supabase.Delete(business.ImageURL1)
+
+		imageURL1, err = bs.supabase.Upload(req.Image1)
+		if err != nil {
+			return err
+		}
+	}
+	if req.Image2 != nil {
+		if req.Image2.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image2)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		bs.supabase.Delete(business.ImageURL2)
+
+		imageURL2, err = bs.supabase.Upload(req.Image2)
+		if err != nil {
+			return err
+		}
+	}
+	if req.Image3 != nil {
+		if req.Image3.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image3)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		bs.supabase.Delete(business.ImageURL3)
+
+		imageURL3, err = bs.supabase.Upload(req.Image3)
+		if err != nil {
+			return err
+		}
+	}
+
+	business = entity.Business{
+		ID:          req.ID,
+		Name:        req.Name,
+		Location:    req.Location,
+		Description: req.Description,
+		Address:     req.Address,
+		PriceRange:  req.PriceRange,
+		ImageURL1:   imageURL1,
+		ImageURL2:   imageURL2,
+		ImageURL3:   imageURL3,
+		Contact:     req.Contact,
+		MapURL:      req.MapURL,
+		Rating:      req.Rating,
+	}
+
+	rowsAffected, err = bs.br.Update(&business)
 	if err != nil {
 		return err
 	}

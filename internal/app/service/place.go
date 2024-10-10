@@ -1,11 +1,15 @@
 package service
 
 import (
+	"slices"
+
 	"github.com/google/uuid"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/repository"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/dto"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/entity"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/errors"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/fileops"
+	"github.com/kmdavidds/abdimasa-backend/internal/pkg/supabase"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/validator"
 )
 
@@ -20,19 +24,89 @@ type PlaceService interface {
 type placeService struct {
 	pr  repository.PlaceRepository
 	val validator.Validator
+	supabase supabase.Supabase
 }
 
 func NewPlaceService(
 	pr repository.PlaceRepository,
 	val validator.Validator,
+	supabase supabase.Supabase,
 ) PlaceService {
-	return &placeService{pr, val}
+	return &placeService{pr, val, supabase}
 }
 
 func (ps *placeService) Create(req dto.CreatePlaceRequest) error {
 	valErr := ps.val.Validate(req)
 	if valErr != nil {
 		return valErr
+	}
+
+	var imageURL1 = ""
+	var imageURL2 = ""
+	var imageURL3 = ""
+
+	if req.Image1 != nil {
+		if req.Image1.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image1)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		imageURL1, err = ps.supabase.Upload(req.Image1)
+		if err != nil {
+			return err
+		}
+	}
+	if req.Image2 != nil {
+		if req.Image2.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image2)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		imageURL2, err = ps.supabase.Upload(req.Image2)
+		if err != nil {
+			return err
+		}
+	}
+	if req.Image3 != nil {
+		if req.Image3.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image3)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		imageURL3, err = ps.supabase.Upload(req.Image3)
+		if err != nil {
+			return err
+		}
 	}
 
 	idV7, err := uuid.NewV7()
@@ -49,9 +123,9 @@ func (ps *placeService) Create(req dto.CreatePlaceRequest) error {
 		OpeningHours: req.OpeningHours,
 		ClosingHours: req.ClosingHours,
 		EntryPrice: req.EntryPrice,
-		ImageURL1: req.ImageURL1,
-		ImageURL2: req.ImageURL2,
-		ImageURL3: req.ImageURL3,
+		ImageURL1: imageURL1,
+		ImageURL2: imageURL2,
+		ImageURL3: imageURL3,
 		MapURL: req.MapURL,
 		Rating: req.Rating,
 	}
@@ -100,7 +174,90 @@ func (ps *placeService) Update(req dto.UpdatePlaceRequest) error {
 		return valErr
 	}
 
-	place := entity.Place{
+	place := entity.Place{ID: req.ID}
+	rowsAffected, err := ps.pr.GetByID(&place)
+	if err != nil {
+		return err
+	}
+	if rowsAffected == 0 {
+		return errors.ErrorNotFound
+	}
+
+	var imageURL1 = ""
+	var imageURL2 = ""
+	var imageURL3 = ""
+
+	if req.Image1 != nil {
+		if req.Image1.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image1)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+		
+		ps.supabase.Delete(place.ImageURL1)
+
+		imageURL1, err = ps.supabase.Upload(req.Image1)
+		if err != nil {
+			return err
+		}
+	}
+	if req.Image2 != nil {
+		if req.Image2.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image2)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		ps.supabase.Delete(place.ImageURL2)
+
+		imageURL2, err = ps.supabase.Upload(req.Image2)
+		if err != nil {
+			return err
+		}
+	}
+	if req.Image3 != nil {
+		if req.Image3.Size > 1*fileops.MegaByte {
+			return errors.ErrorFileTooLarge
+		}
+
+		fileType, err := fileops.DetectMultipartFileType(req.Image3)
+
+		if err != nil {
+			return errors.ErrorInvalidFileType
+		}
+
+		allowedTypes := fileops.ImageContentTypes
+		if !slices.Contains(allowedTypes, fileType) {
+			return errors.ErrorInvalidFileType
+		}
+
+		ps.supabase.Delete(place.ImageURL3)
+
+		imageURL3, err = ps.supabase.Upload(req.Image3)
+		if err != nil {
+			return err
+		}
+	}
+
+	place = entity.Place{
 		ID: req.ID,
 		Name: req.Name,
 		Location: req.Location,
@@ -109,14 +266,14 @@ func (ps *placeService) Update(req dto.UpdatePlaceRequest) error {
 		OpeningHours: req.OpeningHours,
 		ClosingHours: req.ClosingHours,
 		EntryPrice: req.EntryPrice,
-		ImageURL1: req.ImageURL1,
-		ImageURL2: req.ImageURL2,
-		ImageURL3: req.ImageURL3,
+		ImageURL1: imageURL1,
+		ImageURL2: imageURL2,
+		ImageURL3: imageURL3,
 		MapURL: req.MapURL,
 		Rating: req.Rating,
 	}
 
-	rowsAffected, err := ps.pr.Update(&place)
+	rowsAffected, err = ps.pr.Update(&place)
 	if err != nil {
 		return err
 	}

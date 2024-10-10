@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/service"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/dto"
+	"github.com/valyala/fasthttp"
 )
 
 type ActivityHandler interface {
@@ -34,6 +35,15 @@ func (ah *activityHandler) Create() fiber.Handler {
 				"error": err,
 			})
 		}
+
+		imageFile1, err := c.FormFile("image1")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image1",
+			})
+		}
+		
+		req.Image1 = imageFile1
 
 		err = ah.as.Create(req)
 		if err != nil {
@@ -66,6 +76,15 @@ func (ah *activityHandler) Update() fiber.Handler {
 				"error": err,
 			})
 		}
+
+		imageFile1, err := c.FormFile("image1")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image1",
+			})
+		}
+		
+		req.Image1 = imageFile1
 
 		err = ah.as.Update(req)
 		if err != nil {
