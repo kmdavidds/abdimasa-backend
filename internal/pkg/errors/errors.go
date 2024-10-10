@@ -13,6 +13,8 @@ var (
 	ErrorInvalidToken       = errors.New("invalid jwt token")
 	ErrorExpiredToken       = errors.New("expired jwt token")
 	ErrorInvalidCredentials = errors.New("invalid credentials")
+	ErrorFileTooLarge       = errors.New("file too large")
+	ErrorInvalidFileType    = errors.New("invalid file type")
 )
 
 func Handler(c *fiber.Ctx, err error) error {
@@ -28,6 +30,8 @@ func Handler(c *fiber.Ctx, err error) error {
 		ErrorInvalidToken:       http.StatusUnauthorized,
 		ErrorExpiredToken:       http.StatusUnauthorized,
 		ErrorInvalidCredentials: http.StatusUnauthorized,
+		ErrorFileTooLarge:       http.StatusRequestEntityTooLarge,
+		ErrorInvalidFileType:    http.StatusUnprocessableEntity,
 	}
 
 	statusCode, exists := errorMappings[err]
