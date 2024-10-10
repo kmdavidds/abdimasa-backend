@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/kmdavidds/abdimasa-backend/internal/app/service"
 	"github.com/kmdavidds/abdimasa-backend/internal/pkg/dto"
+	"github.com/valyala/fasthttp"
 )
 
 type PlaceHandler interface {
@@ -35,6 +36,29 @@ func (ph *placeHandler) Create() fiber.Handler {
 				"error": err,
 			})
 		}
+
+		imageFile1, err := c.FormFile("image1")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image1",
+			})
+		}
+		imageFile2, err := c.FormFile("image2")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image2",
+			})
+		}
+		imageFile3, err := c.FormFile("image3")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image3",
+			})
+		}
+		
+		req.Image1 = imageFile1
+		req.Image2 = imageFile2
+		req.Image3 = imageFile3
 
 		err = ph.ps.Create(req)
 		if err != nil {
@@ -88,6 +112,29 @@ func (ph *placeHandler) Update() fiber.Handler {
 				"error": err,
 			})
 		}
+
+		imageFile1, err := c.FormFile("image1")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image1",
+			})
+		}
+		imageFile2, err := c.FormFile("image2")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image2",
+			})
+		}
+		imageFile3, err := c.FormFile("image3")
+		if err != nil && err != fasthttp.ErrMissingFile {
+			return c.Status(http.StatusUnprocessableEntity).JSON(map[string]any{
+				"error": "failed to get image3",
+			})
+		}
+		
+		req.Image1 = imageFile1
+		req.Image2 = imageFile2
+		req.Image3 = imageFile3
 
 		err = ph.ps.Update(req)
 		if err != nil {
