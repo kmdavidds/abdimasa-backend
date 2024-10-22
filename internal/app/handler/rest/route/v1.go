@@ -78,8 +78,8 @@ func (c *Config) suggestionRoutes(r fiber.Router) {
 	suggestions := r.Group("/suggestions")
 
 	suggestions.Get("", c.SuggestionHandler.GetAll())
+	suggestions.Post("", c.SuggestionHandler.Create())
 
-	suggestions.Post("", c.AuthMiddleware.Authenticate(),  c.SuggestionHandler.Create())
 	suggestions.Delete("/:id", c.AuthMiddleware.Authenticate(),  c.SuggestionHandler.Delete())
 }
 
