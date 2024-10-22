@@ -21,6 +21,16 @@ var ImageContentTypes = []string{
 
 var DocumentContentTypes = []string{
 	"application/pdf",
+	"image/apng",
+	"image/avif",
+	"image/bmp",
+	"image/gif",
+	"image/vnd.microsoft.icon",
+	"image/jpeg",
+	"image/png",
+	"image/svg+xml",
+	"image/tiff",
+	"image/webp",
 }
 
 func DetectMultipartFileType(file *multipart.FileHeader) (string, error) {
