@@ -28,7 +28,7 @@ func (dr *detailRepository) Create(detail *entity.Detail) (int64, error) {
 }
 
 func (dr *detailRepository) GetAll(detail *[]entity.Detail) (int64, error) {
-	result := dr.db.Debug().Find(detail)
+	result := dr.db.Debug().Order("id ASC").Find(detail)
 	return result.RowsAffected, result.Error
 }
 
