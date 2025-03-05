@@ -28,5 +28,4 @@ go.work.sum
 .vercel
 
 # docker
-compose.yaml
-Dockerfile
+decrypt.go
